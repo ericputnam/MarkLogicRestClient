@@ -32,7 +32,7 @@ public class RestClientImpl {
 		
 		try {
 			client.addFilter(new HTTPDigestAuthFilter("admin","admin"));
-			client.setReadTimeout(5000);
+			client.setReadTimeout(4000);
 			//client.
 			//WebResource webResource2 = client.resource("http://" + server1 + ":"+ port + "/v1/documents");
 			WebResource webResource2 = client.resource("http://" + server3 + ":" + port+ "/v1/documents");
@@ -43,7 +43,7 @@ public class RestClientImpl {
 	        for(int x = 0; x <= 50000; x++){
 			
 				MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
-		        queryParams.add("uri", "/image/2800.json");
+		        queryParams.add("uri", "/image/" + x +".json");
 		        
 		        JSONObject query = new JSONObject();
 	        	query.put("testdata", x);
