@@ -32,7 +32,7 @@ public class RestClientImpl {
 		
 		try {
 			client.addFilter(new HTTPDigestAuthFilter("admin","admin"));
-			client.setReadTimeout(4000);
+			client.setReadTimeout(2000);
 			//client.
 			//WebResource webResource2 = client.resource("http://" + server1 + ":"+ port + "/v1/documents");
 			WebResource webResource2 = client.resource("http://" + server3 + ":" + port+ "/v1/documents");
@@ -50,6 +50,7 @@ public class RestClientImpl {
 
 	        	boolean success = false;
 	        	int failedNumber = 0;
+	        	int iterationCount = 0;
 	        	do {
 	        		
 					try{
@@ -64,7 +65,7 @@ public class RestClientImpl {
 		        	}catch(ClientHandlerException ste){
 		        		//REST Service Error. Intelligently determine how to proceed.
 		        		ste.printStackTrace();
-		        		System.out.println(failedNumber);
+		        		System.out.println(iterationCount);
 		        		
 		        		//Create and renew the client
 		        		try{
@@ -89,6 +90,7 @@ public class RestClientImpl {
 		        		}
 		        		
 		        		failedNumber++;
+		        		iterationCount++;
 		        		
 		        	}
 	        	} while(!success);				
