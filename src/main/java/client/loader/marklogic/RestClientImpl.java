@@ -18,10 +18,9 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 public class RestClientImpl {
 
 	public static void main( String[] args ) {
-		String server1 = "vg-ml-ml1";
-		String server2 = "vg-ml-ml2";
-		String server3 = "vg-ml-ml3";
-		
+		String serverName = "vgsix-ml-ml";
+		int totalClusterHosts = 9;		
+		int socketReadTimeout = 4000;
 		String port = "8045";
 		Client client = Client.create();
 		
@@ -32,10 +31,10 @@ public class RestClientImpl {
 		
 		try {
 			client.addFilter(new HTTPDigestAuthFilter("admin","admin"));
-			client.setReadTimeout(2000);
+			client.setReadTimeout(socketReadTimeout);
 			//client.
 			//WebResource webResource2 = client.resource("http://" + server1 + ":"+ port + "/v1/documents");
-			WebResource webResource2 = client.resource("http://" + server3 + ":" + port+ "/v1/documents");
+			WebResource webResource2 = client.resource("http://" + serverName + totalClusterHosts + ":" + port+ "/v1/documents");
 			
 			long passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
 	        System.out.println(" Begin [time elapsed] " + watch.time(TimeUnit.SECONDS) + " [system time]" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
@@ -72,20 +71,19 @@ public class RestClientImpl {
 			        		client.destroy();
 			        		client = Client.create();
 			        		client.addFilter(new HTTPDigestAuthFilter("admin","admin"));
-			    			client.setReadTimeout(5000);
+			    			client.setReadTimeout(socketReadTimeout);
 		        		}catch(Exception e){
 		        			e.printStackTrace();
 		        		}
 		    			
-		        		if(failedNumber == 0){
-		        			webResource2 = client.resource("http://" + server2 + ":" + port+ "/v1/documents");
-		        			System.out.println("failed try again! [server2]");
-		        		} else if (failedNumber == 1){
-		        			webResource2 = client.resource("http://" + server1 + ":" + port+ "/v1/documents");
-		        			System.out.println("failed try again! [server1]");
+		        		if((failedNumber >= 0) && (failedNumber < totalClusterHosts)){
+		        			String host = serverName + String.valueOf(failedNumber + 1);
+		        			webResource2 = client.resource("http://" + host + ":" + port+ "/v1/documents");
+		        			System.out.println("failed try again! [" + host + "]");
 		        		} else {
-		        			webResource2 = client.resource("http://" + server3 + ":" + port+ "/v1/documents");
-		        			System.out.println("failed try again! [server3]");
+		        			String host = serverName + String.valueOf(failedNumber);
+		        			webResource2 = client.resource("http://" + host + ":" + port+ "/v1/documents");
+		        			System.out.println("failed try again! [" + host + "]");
 		        			failedNumber = -1;
 		        		}
 		        		
