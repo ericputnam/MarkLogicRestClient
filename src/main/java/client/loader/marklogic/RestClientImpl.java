@@ -47,6 +47,7 @@ public class RestClientImpl {
 		int totalClusterHosts = 9;		
 		int socketReadTimeout = 4000;
 		String port = "8045";
+		int numberOfInsertCycles = 50000;
 		Client client = Client.create();
 		
 		//Initial our time watch feature, to track time elapsed.
@@ -58,15 +59,16 @@ public class RestClientImpl {
 		try {
 			client.addFilter(new HTTPDigestAuthFilter("admin","admin"));
 			client.setReadTimeout(socketReadTimeout);
-			//client.
-			//WebResource webResource2 = client.resource("http://" + server1 + ":"+ port + "/v1/documents");
+			
+			//Setup our REST based MarkLogic resource.
 			WebResource webResource2 = client.resource("http://" + serverName + totalClusterHosts + ":" + port+ "/v1/documents");
 			
+			//Show time elapsed before we fire off the program.
 			long passedTimeInSeconds = watch.time(TimeUnit.SECONDS);
 	        System.out.println(" Begin [time elapsed] " + watch.time(TimeUnit.SECONDS) + " [system time]" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 			
-	        for(int x = 0; x <= 50000; x++){
-			
+	        //Iteration value
+	        for(int x = 0; x <= numberOfInsertCycles; x++){
 				MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
 		        queryParams.add("uri", "/image/" + x +".json");
 		        
@@ -92,7 +94,7 @@ public class RestClientImpl {
 		        		ste.printStackTrace();
 		        		System.out.println(iterationCount);
 		        		
-		        		//Create and renew the client
+		        		//If we fail, create and renew the REST resource, to ensure that we have a good one.
 		        		try{
 			        		client.destroy();
 			        		client = Client.create();
@@ -123,6 +125,7 @@ public class RestClientImpl {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
+			//It's a good idea to close up the web resource if we are done using it.
 			if(client != null){
 				client.destroy();
 			}
